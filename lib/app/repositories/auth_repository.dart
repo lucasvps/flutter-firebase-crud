@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:todo_firebase/app/interfaces/auth_respository_interface.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthRepository implements IAuthRepository {
   final FirebaseAuth firebaseAuth;
@@ -30,8 +31,30 @@ class AuthRepository implements IAuthRepository {
   }
 
   @override
-  Future loginGoogle() {
-    return null;
+  Future loginGoogle() async {
+    try {
+      var googleSignIn = GoogleSignIn();
+      // Logado com o google. Mas ainda nao com o firebase.
+      var googleSignInAccount = await googleSignIn.signIn();
+
+      // Pegar a auth
+      var googleSignInAuthentication = await googleSignInAccount.authentication;
+
+      FirebaseUser firebaseUser;
+
+      // Se realmente recebeu acesso, entao busque as credenciais.
+      if (googleSignInAuthentication.accessToken != null) {
+        var credential = GoogleAuthProvider.getCredential(
+            idToken: googleSignInAuthentication.idToken,
+            accessToken: googleSignInAuthentication.accessToken);
+
+        await firebaseAuth.signInWithCredential(credential).then((auth) {
+          firebaseUser = auth.user;
+        });
+      }
+    } catch (e) {
+      return e;
+    }
   }
 
   @override

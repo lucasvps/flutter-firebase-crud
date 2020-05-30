@@ -18,6 +18,19 @@ abstract class _AuthControllerBase with Store {
     authRepository = Modular.get<IAuthRepository>();
   }
 
+  Future loginWithGoogle() async {
+    return await authRepository.loginGoogle().then((value) {
+      authRepository.getUser().then((value) {
+        user.setEmail(value.email);
+        user.setNome(value.displayName);
+      }).catchError((err) {
+        return err;
+      });
+    }).catchError((err) {
+      return err;
+    });
+  }
+
   Future registerEmail(String email, String password) async {
     return await authRepository.registerEmailAndPass(
         email: email.trim(), password: password.trim());
@@ -40,7 +53,11 @@ abstract class _AuthControllerBase with Store {
   }
 
   Future logOut() async {
-    user.setEmail("");
-    return await authRepository.logOut();
+    return await authRepository.logOut().then((value) {
+      user.setEmail(null);
+      user.setNome(null);
+    }).catchError((err){
+      return err;
+    });
   }
 }

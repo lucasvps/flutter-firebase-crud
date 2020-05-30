@@ -41,46 +41,64 @@ class _HomePageState extends ModularState<HomePage, HomeController> {
           ],
           title: Text(widget.title),
         ),
-        body: Container(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextField(
-                    controller: email,
+        body: SingleChildScrollView(
+          child: Container(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      controller: email,
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextField(
-                    controller: password,
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      controller: password,
+                    ),
                   ),
-                ),
-                RaisedButton(
-                  color: Colors.blue,
-                  child: Text('LOGIN'),
-                  onPressed: () {
-                    Modular.get<AuthController>()
-                        .loginEmailAndPass(email.text, password.text)
-                        .catchError((e) {
-                      print('NOT LOGGED');
-                    });
-                  },
-                ),
-                Observer(builder: (_) {
-                  return Text(Modular.get<AuthController>().user.email != null
-                      ? Modular.get<AuthController>().user.email
-                      : "");
-                }),
-                RaisedButton(
-                  onPressed: () {
-                    Modular.to.pushNamed('/second');
-                  },
-                  child: Text('second page'),
-                )
-              ],
+                  RaisedButton(
+                    color: Colors.blue,
+                    child: Text('LOGIN'),
+                    onPressed: () {
+                      Modular.get<AuthController>()
+                          .loginEmailAndPass(email.text, password.text)
+                          .catchError((e) {
+                        print('NOT LOGGED');
+                      });
+                    },
+                  ),
+                  Observer(builder: (_) {
+                    return Text(Modular.get<AuthController>().user.email != null
+                        ? Modular.get<AuthController>().user.email
+                        : "");
+                  }),
+                  Observer(builder: (_) {
+                    return RaisedButton(
+                      color: Colors.orange,
+                      child: Text(
+                          Modular.get<AuthController>().user.nome != null
+                              ? Modular.get<AuthController>().user.nome
+                              : 'LOGIN with GOOGLE'),
+                      onPressed: () {
+                        Modular.get<AuthController>()
+                            .loginWithGoogle()
+                            .catchError((e) {
+                          print('NOT LOGGED');
+                        });
+                      },
+                    );
+                  }),
+                  RaisedButton(
+                    onPressed: () {
+                      Modular.to.pushNamed('/second');
+                    },
+                    child: Text('second page'),
+                  )
+                ],
+              ),
             ),
           ),
         ));
