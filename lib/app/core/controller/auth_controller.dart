@@ -1,63 +1,35 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_modular/flutter_modular.dart';
 import 'package:mobx/mobx.dart';
-import 'package:todo_firebase/app/interfaces/auth_respository_interface.dart';
-import 'package:todo_firebase/app/models/user.model.dart';
+import 'package:todo_firebase/app/stores/auth_store.dart';
 
 part 'auth_controller.g.dart';
 
 class AuthController = _AuthControllerBase with _$AuthController;
 
 abstract class _AuthControllerBase with Store {
-  var user = UserModel();
-  //UserModel user;
+  final AuthStore _authStore;
 
-  IAuthRepository authRepository;
+  _AuthControllerBase(this._authStore);
 
-  _AuthControllerBase() {
-    authRepository = Modular.get<IAuthRepository>();
+
+  Future loginGoogle() async {
+    return await _authStore.loginWithGoogle();
   }
 
-  Future loginWithGoogle() async {
-    return await authRepository.loginGoogle().then((value) {
-      authRepository.getUser().then((value) {
-        user.setEmail(value.email);
-        user.setNome(value.displayName);
-      }).catchError((err) {
-        return err;
-      });
-    }).catchError((err) {
-      return err;
-    });
+  Future registerLoginEmail(String email, String password) async {
+    return await _authStore.registerEmail(email, password);
   }
 
-  Future registerEmail(String email, String password) async {
-    return await authRepository.registerEmailAndPass(
-        email: email.trim(), password: password.trim());
+  Future loginEmail(String email, String password) async {
+    return await _authStore.loginEmailAndPass(email, password);
   }
 
-  Future loginEmailAndPass(String email, String password) async {
-    return await authRepository
-        .loginEmailAndPass(email: email.trim(), password: password.trim())
-        .then((value) {
-      authRepository.getUser().then((value) {
-        user.setEmail(value.email);
-      }).catchError((e) {
-        return e;
-      });
-    });
+  Future<FirebaseUser> getUser () async {
+    return await _authStore.getUser();
   }
 
-  Future<FirebaseUser> getUser() async {
-    return await authRepository.getUser();
+  Future logout () async {
+    return await _authStore.logOut();
   }
 
-  Future logOut() async {
-    return await authRepository.logOut().then((value) {
-      user.setEmail(null);
-      user.setNome(null);
-    }).catchError((err){
-      return err;
-    });
-  }
 }

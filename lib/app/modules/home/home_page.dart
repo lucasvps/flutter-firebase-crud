@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:todo_firebase/app/core/controller/auth_controller.dart';
+import 'package:todo_firebase/app/models/todo_model.dart';
+import 'package:todo_firebase/app/stores/auth_store.dart';
 import 'home_controller.dart';
 
 class HomePage extends StatefulWidget {
@@ -21,7 +23,7 @@ class _HomePageState extends ModularState<HomePage, HomeController> {
   @override
   void initState() {
     Modular.get<AuthController>().getUser().then((value) async {
-      await Modular.get<AuthController>().user.setEmail(value.email);
+      await Modular.get<AuthStore>().user.setEmail(value.email);
     });
     super.initState();
   }
@@ -36,7 +38,7 @@ class _HomePageState extends ModularState<HomePage, HomeController> {
             IconButton(
                 icon: Icon(Icons.exit_to_app),
                 onPressed: () {
-                  Modular.get<AuthController>().logOut();
+                  Modular.get<AuthController>().logout();
                 })
           ],
           title: Text(widget.title),
@@ -64,27 +66,26 @@ class _HomePageState extends ModularState<HomePage, HomeController> {
                     child: Text('LOGIN'),
                     onPressed: () {
                       Modular.get<AuthController>()
-                          .loginEmailAndPass(email.text, password.text)
+                          .loginEmail(email.text, password.text)
                           .catchError((e) {
                         print('NOT LOGGED');
                       });
                     },
                   ),
                   Observer(builder: (_) {
-                    return Text(Modular.get<AuthController>().user.email != null
-                        ? Modular.get<AuthController>().user.email
+                    return Text(Modular.get<AuthStore>().user.email != null
+                        ? Modular.get<AuthStore>().user.email
                         : "");
                   }),
                   Observer(builder: (_) {
                     return RaisedButton(
                       color: Colors.orange,
-                      child: Text(
-                          Modular.get<AuthController>().user.nome != null
-                              ? Modular.get<AuthController>().user.nome
-                              : 'LOGIN with GOOGLE'),
+                      child: Text(Modular.get<AuthStore>().user.nome != null
+                          ? Modular.get<AuthStore>().user.nome
+                          : 'LOGIN with GOOGLE'),
                       onPressed: () {
                         Modular.get<AuthController>()
-                            .loginWithGoogle()
+                            .loginGoogle()
                             .catchError((e) {
                           print('NOT LOGGED');
                         });
@@ -96,7 +97,33 @@ class _HomePageState extends ModularState<HomePage, HomeController> {
                       Modular.to.pushNamed('/second');
                     },
                     child: Text('second page'),
-                  )
+                  ),
+                  SizedBox(
+                    height: 40,
+                  ),
+                  Observer(builder: (_) {
+                    return Column(
+                      children: <Widget>[
+                        TextField(
+                          decoration:
+                              InputDecoration(border: OutlineInputBorder()),
+                          onChanged: controller.createTodoStore.setTitle,
+                        ),
+                        RaisedButton(
+                          onPressed: () {
+                            print(controller.createTodoStore.title);
+                            TodoModel todoModel = TodoModel(
+                              check: false,
+                              title: controller.createTodoStore.title,
+                            );
+                            controller.newTodo(todoModel);
+                          },
+                          child: Text('Add TODO'),
+                        ),
+                        
+                      ],
+                    );
+                  })
                 ],
               ),
             ),

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'segunda_controller.dart';
+part of 'update_todo_store.dart';
 
 // **************************************************************************
 // StoreGenerator
@@ -8,7 +8,7 @@ part of 'segunda_controller.dart';
 
 // ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
-mixin _$SegundaController on _SegundaControllerBase, Store {
+mixin _$UpdateTodoStore on _UpdateTodoStoreBase, Store {
   @override
   String toString() {
     final string = '';

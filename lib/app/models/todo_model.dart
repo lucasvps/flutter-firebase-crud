@@ -1,24 +1,21 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class TodoModel {
+
   String title;
   bool check;
-  DocumentReference reference;
+  final String documentId;
 
-  TodoModel({this.title, this.check = false, this.reference});
+  
+  TodoModel({this.documentId, this.title, this.check});
 
-  factory TodoModel.fromDocs(DocumentSnapshot doc) {
-    return TodoModel(
-        title: doc['title'], check: doc['check'], reference: doc.reference);
+  Map<String, dynamic> toMap() {
+    return {'title': title, 'check': check};
   }
 
-  Future save() async {
-    if (reference == null) {
-      reference = await Firestore.instance
-          .collection('todo')
-          .add({'title': title, 'check': check});
-    } else {
-      reference.updateData({'title': title, 'check': check});
-    }
+  factory TodoModel.fromMap(Map<String, dynamic> map, String documentId) {
+    return TodoModel(
+      title: map['title'],
+      check: map['check'],
+      documentId: documentId,
+    );
   }
 }
