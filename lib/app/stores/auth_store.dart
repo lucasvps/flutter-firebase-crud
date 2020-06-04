@@ -19,9 +19,11 @@ abstract class _AuthStoreBase with Store {
         user.setEmail(value.email);
         user.setNome(value.displayName);
       }).catchError((err) {
+        print("Erro" + err.toString());
         return err;
       });
     }).catchError((err) {
+      print("Erro" + err.toString());
       return err;
     });
   }

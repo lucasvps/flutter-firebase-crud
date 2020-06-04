@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:todo_firebase/app/app_widget.dart';
 import 'package:todo_firebase/app/modules/edit/edit_module.dart';
 import 'package:todo_firebase/app/modules/home/home_module.dart';
+import 'package:todo_firebase/app/modules/login/login_module.dart';
 import 'package:todo_firebase/app/modules/segunda/segunda_module.dart';
 
 import 'core/controller/auth_controller.dart';
@@ -27,9 +28,10 @@ class AppModule extends MainModule {
 
   @override
   List<Router> get routers => [
-        Router(Modular.initialRoute, module: HomeModule()),
+        Router('/', module: HomeModule()),
         Router('/second', module: SegundaModule()),
         Router('/edit', module: EditModule()),
+        Router('/login', module: LoginModule()),
       ];
 
   @override

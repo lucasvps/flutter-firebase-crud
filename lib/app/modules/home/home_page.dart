@@ -3,6 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:todo_firebase/app/core/controller/auth_controller.dart';
 import 'package:todo_firebase/app/models/todo_model.dart';
+import 'package:todo_firebase/app/models/user.model.dart';
 import 'package:todo_firebase/app/stores/auth_store.dart';
 import 'home_controller.dart';
 
@@ -17,94 +18,66 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends ModularState<HomePage, HomeController> {
   //use 'controller' variable to access controller
 
-  final TextEditingController email = TextEditingController();
-  final TextEditingController password = TextEditingController();
-
   @override
   void initState() {
     Modular.get<AuthController>().getUser().then((value) async {
       await Modular.get<AuthStore>().user.setEmail(value.email);
+      await Modular.get<AuthStore>().user.setNome(value.displayName);
     });
     super.initState();
   }
 
+  UserModel authUser = Modular.get<AuthStore>().user;
+
+  TextEditingController _title = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        floatingActionButton:
-            FloatingActionButton(onPressed: null, child: Icon(Icons.add)),
-        appBar: AppBar(
-          actions: <Widget>[
-            IconButton(
-                icon: Icon(Icons.exit_to_app),
-                onPressed: () {
-                  Modular.get<AuthController>().logout();
-                })
-          ],
-          title: Text(widget.title),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Modular.to.pushNamed('/second');
+          },
+          child: Icon(Icons.arrow_forward),
         ),
+        appBar: AppBar(
+            actions: <Widget>[
+              IconButton(
+                  icon: Icon(Icons.exit_to_app),
+                  onPressed: authUser.email == null
+                      ? null
+                      : () {
+                          Modular.get<AuthController>().logout();
+                          Modular.to.pushReplacementNamed('/login');
+                        }),
+              IconButton(
+                  icon: Icon(Icons.account_circle),
+                  onPressed: authUser.email == null
+                      ? () {
+                          Modular.to.pushReplacementNamed('/login');
+                        }
+                      : null),
+            ],
+            title: Observer(builder: (_) {
+              return Text((authUser.nome == null && authUser.email == null)
+                  ? "Olá!"
+                  : (authUser.nome == null && authUser.email != null)
+                      ? "Olá, " + authUser.email
+                      : authUser.nome != null
+                          ? "Olá, " + authUser.nome + "!"
+                          : "");
+            })),
         body: SingleChildScrollView(
           child: Container(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextField(
-                      controller: email,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextField(
-                      controller: password,
-                    ),
-                  ),
-                  RaisedButton(
-                    color: Colors.blue,
-                    child: Text('LOGIN'),
-                    onPressed: () {
-                      Modular.get<AuthController>()
-                          .loginEmail(email.text, password.text)
-                          .catchError((e) {
-                        print('NOT LOGGED');
-                      });
-                    },
-                  ),
-                  Observer(builder: (_) {
-                    return Text(Modular.get<AuthStore>().user.email != null
-                        ? Modular.get<AuthStore>().user.email
-                        : "");
-                  }),
-                  Observer(builder: (_) {
-                    return RaisedButton(
-                      color: Colors.orange,
-                      child: Text(Modular.get<AuthStore>().user.nome != null
-                          ? Modular.get<AuthStore>().user.nome
-                          : 'LOGIN with GOOGLE'),
-                      onPressed: () {
-                        Modular.get<AuthController>()
-                            .loginGoogle()
-                            .catchError((e) {
-                          print('NOT LOGGED');
-                        });
-                      },
-                    );
-                  }),
-                  RaisedButton(
-                    onPressed: () {
-                      Modular.to.pushNamed('/second');
-                    },
-                    child: Text('second page'),
-                  ),
-                  SizedBox(
-                    height: 40,
-                  ),
                   Observer(builder: (_) {
                     return Column(
                       children: <Widget>[
                         TextField(
+                          controller: _title,
                           decoration:
                               InputDecoration(border: OutlineInputBorder()),
                           onChanged: controller.createTodoStore.setTitle,
@@ -117,13 +90,13 @@ class _HomePageState extends ModularState<HomePage, HomeController> {
                               title: controller.createTodoStore.title,
                             );
                             controller.newTodo(todoModel);
+                            _title.text = "";
                           },
                           child: Text('Add TODO'),
                         ),
-                        
                       ],
                     );
-                  })
+                  }),
                 ],
               ),
             ),
